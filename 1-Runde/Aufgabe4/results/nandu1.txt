@@ -1,0 +1,5 @@
+Q1	Q2	L1	L2
+Aus	Aus	Ein	Ein
+Ein	Aus	Ein	Ein
+Aus	Ein	Ein	Ein
+Ein	Ein	Aus	Aus

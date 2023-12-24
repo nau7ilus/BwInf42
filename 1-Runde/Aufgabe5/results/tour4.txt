@@ -1,0 +1,19 @@
+Blaues Pferd,1523, ,0
+Alte Mühle,1544, ,110
+Marktplatz,1549, ,210
+Marktplatz,1562, ,210
+Springbrunnen,1571, ,290
+Dom,1596,X,360
+Bogenschütze,1610, ,480
+Bogenschütze,1683, ,480
+Schnecke,1698,X,630
+Fischweiher,1710, ,810
+Reiterhof,1728,X,930
+Schnecke,1742, ,1070
+Große Gabel,1874, ,960
+Fingerhut,1917,X,1030
+Stadion,1934, ,1150
+Marktplatz,1962, ,1240
+Baumschule,1974, ,1320
+Polizeipräsidium,1991, ,1460
+Blaues Pferd,2004, ,1610

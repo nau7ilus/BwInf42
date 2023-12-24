@@ -1,0 +1,28 @@
+Gabelhaus,1638, ,0
+Gabelhaus,1699, ,0
+Hexentanzplatz,1703,X,160
+Eselsbrücke,1711, ,280
+Dreibannstein,1724, ,390
+Dreibannstein,1752, ,390
+Schmetterling,1760,X,540
+Dreibannstein,1781, ,620
+Märchenwald,1793,X,700
+Fuchsbau,1811, ,780
+Torfmoor,1817, ,890
+Gartenschau,1825, ,1030
+Riesenrad,1902, ,880
+Dreibannstein,1911,X,1010
+Olympisches Dorf,1924, ,1170
+Haus der Zukunft,1927,X,1300
+Stellwerk,1931, ,1420
+Dreibannstein,1938, ,1590
+Stellwerk,1942, ,1720
+Labyrinth,1955, ,1930
+Gauklerstadl,1961, ,2010
+Planetarium,1971,X,2090
+Känguruhfarm,1976, ,2140
+Balzplatz,1978, ,2220
+Dreibannstein,1998,X,2310
+Labyrinth,2013, ,2440
+CO2-Speicher,2022, ,2630
+Gabelhaus,2023, ,2700

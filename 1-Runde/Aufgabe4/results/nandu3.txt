@@ -1,0 +1,9 @@
+Q1	Q2	Q3	L1	L2	L3	L4
+Aus	Aus	Aus	Ein	Aus	Aus	Ein
+Ein	Aus	Aus	Aus	Ein	Aus	Ein
+Aus	Ein	Aus	Ein	Aus	Ein	Ein
+Ein	Ein	Aus	Aus	Ein	Ein	Ein
+Aus	Aus	Ein	Ein	Aus	Aus	Aus
+Ein	Aus	Ein	Aus	Ein	Aus	Aus
+Aus	Ein	Ein	Ein	Aus	Ein	Aus
+Ein	Ein	Ein	Aus	Ein	Ein	Aus

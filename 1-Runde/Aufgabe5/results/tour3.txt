@@ -1,0 +1,10 @@
+Talstation,1768, ,0
+Wäldle,1805, ,520
+Mittlere Alp,1823, ,1160
+Observatorium,1833, ,1450
+Observatorium,1874,X,1450
+Piz Spitz,1898, ,1920
+Panoramasteg,1912,X,2140
+Panoramasteg,1952, ,2140
+Ziegenbrücke,1979,X,2390
+Talstation,2005, ,2670

@@ -1,0 +1,525 @@
+\documentclass[a4paper,10pt,ngerman]{scrartcl}
+\usepackage{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[a4paper,margin=2.5cm,footskip=0.5cm]{geometry}
+
+% Die nächsten vier Felder bitte anpassen:
+\newcommand{\Aufgabe}{Aufgabe 3: Zauberschule} % Aufgabennummer und Aufgabennamen angeben
+\newcommand{\TeamId}{00988}                       % Team-ID aus dem PMS angeben
+\newcommand{\TeamName}{BitShifter}                 % Team-Namen angeben
+\newcommand{\Namen}{Filip Zelinskyi}           % Namen der Bearbeiter/-innen dieser Aufgabe angeben
+ 
+% Kopf- und Fußzeilen
+\usepackage{scrlayer-scrpage, lastpage}
+\setkomafont{pageheadfoot}{\large\textrm}
+\lohead{\Aufgabe}
+\rohead{Team-ID: \TeamId}
+\cfoot*{\thepage{}/\pageref{LastPage}}
+
+% Position des Titels
+\usepackage{titling}
+\setlength{\droptitle}{-1.0cm}
+
+% Für mathematische Befehle und Symbole
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Für Bilder
+\usepackage{graphicx}
+
+% Für Algorithmen
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\algnewcommand{\algorithmicand}{\textbf{ and }}
+\algnewcommand{\algorithmicor}{\textbf{ or }}
+\algnewcommand{\OR}{\algorithmicor}
+\algnewcommand{\AND}{\algorithmicand}
+\algnewcommand{\var}{\texttt}
+\renewcommand{\algorithmiccomment}[1]{\hfill$\triangleright$\textit{#1}}
+
+% Für Quelltext
+\usepackage{listings}
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+\lstset{
+  keywordstyle=\color{blue},commentstyle=\color{mygreen},
+  stringstyle=\color{mymauve},rulecolor=\color{black},
+  basicstyle=\footnotesize\ttfamily,numberstyle=\tiny\color{mygray},
+  captionpos=b, % sets the caption-position to bottom
+  keepspaces=true, % keeps spaces in text
+  numbers=left, numbersep=5pt, showspaces=false,showstringspaces=true,
+  showtabs=false, stepnumber=2, tabsize=2, title=\lstname
+}
+\lstdefinelanguage{JavaScript}{ % JavaScript ist als einzige Sprache noch nicht vordefiniert
+  keywords={break, case, catch, continue, debugger, default, delete, do, else, finally, for, function, if, in, instanceof, new, return, switch, this, throw, try, typeof, var, void, while, with},
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]',
+  morestring=[b]",
+  sensitive=true
+}
+
+% Diese beiden Pakete müssen zuletzt geladen werden
+%\usepackage{hyperref} % Anklickbare Links im Dokument
+\usepackage{cleveref}
+
+% Daten für die Titelseite
+\title{\textbf{\Huge\Aufgabe}}
+\author{\LARGE Team-ID: \LARGE \TeamId \\\\
+	    \LARGE Team-Name: \LARGE \TeamName \\\\
+	    \LARGE Bearbeiter dieser Aufgabe: \\ 
+	    \LARGE \Namen\\\\}
+\date{\LARGE\today}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\vspace{0.5cm}
+
+\section{Abstract}
+
+%In der Aufgabe sind zwei exakt übereinander liegende Labyrinthe gegeben. Auf einer der Ebenen ist ein Startpunkt A und ein Zielpunkt B markiert. Man darf sich in alle vier Himmelsrichtungen sowie nach oben und unten bewegen, sofern keine Wand oder die Grenze der Karte im Weg ist. Die Bewegung auf der gleichen Ebene kostet eine Sekunde, der Etagenwechsel an derselben Stelle kostet drei Sekunden. Die Aufgabe ist es, vom Punkt A zum Punkt B mit minimalen Kosten zu gelangen.
+
+Die Lösung basiert auf einem Algorithmus A*, der für die Suche nach dem kürzesten Weg in einem dreidimensionalen Labyrinth angepasst wurde.
+
+In diesem Dokument wird der Lösungsansatz beschrieben, die Umsetzung auf C++ erläutert und die Lösungen für die Beispiele vorgestellt.
+
+\section{Lösungsidee}
+% BFS wegstreichen, mit Djkstra anfangen
+% 
+
+Das Problem lässt sich zur Vereinfachung zunächst auf die bekannten Algorithmen für das Finden des kürzesten Weges in einem zweidimensionalen Labyrinth reduzieren.
+
+% Besser mathematisch beschreiben
+Ein Labyrinth kann als gewichteter Graph dargestellt werden, wobei jedes freie Feld einem Knoten entspricht und jede Verbindung zwischen benachbarten Feldern (außer Wänden) einer Kante entspricht. In einem zweidimensionalen Labyrinth beträgt das Gewicht jeder Kante 1.
+
+Um einen Weg durch das Labyrinth zu finden, können wir verschiedene Algorithmen verwenden. Der Breadth-First Search (BFS) Algorithmus ist eine Möglichkeit, aber er ist nicht sehr effizient für die gezielte Pfadsuche und berücksichtigt keine Gewichte.
+
+Eine bessere Option könnte der Dijkstra-Algorithmus sein, der die Kosten für jedes Feld berechnet und Wege mit geringeren Kosten bevorzugt. Allerdings breitet sich dieser Algorithmus in alle Richtungen aus und verschwendet Zeit für unwahrscheinliche Lösungen.
+
+Wenn wir nur einen Zielpunkt haben, können wir den A*-Algorithmus verwenden, der eine heuristische, gezielte Suche durchführt und effizienter ist als der Dijkstra-Algorithmus.
+
+Wenn wir das Problem auf ein dreidimensionales Labyrinth erweitern wollen, können wir eine zusätzliche Koordinate z einführen, die die Ebene des Knotens darstellt. Das Gewicht der Kante zwischen einem Punkt (x, y, z) und einem anderen Punkt (x, y, z+1) oder (x, y, z-1) wird als 3 Sekunden festgelegt.
+\section{Umsetzung}
+
+Zunächst möchte ich einige neue Code-Strukturen definieren, die oft bei der Implementierung verwendet werden. Dies umfasst die Struktur eines 3D-Punktes, die Darstellung eines Punkteintrags in der Warteschlange mit einer zugehörigen Priorität sowie die Repräsentation des Labyrinths in Form einer dreidimensionalen Matrix. Gemäß den Anforderungen der Aufgabenstellung bleibt die Tiefe ($DEPTH$) stets konstant bei 2.
+
+\begin{algorithm}
+\begin{algorithmic}
+\Require{DEPTH: 2, ROW: int, COL: int} \Comment{Größe des Feldes aus der Eingabe}
+\State $\textbf{type}$ Point $\gets (x: int, y: int, z: int)$
+\State $\textbf{type}$ PriorityPoint $\gets (point: Point, priority: int)$
+\State $\textbf{type}$ LabyrinthMatrix $\gets array_{DEPTH,ROW,COL}$
+\end{algorithmic}
+\end{algorithm}
+
+\vspace{0.5cm}
+
+Der Suchalgorithmus benötigt fortlaufend Informationen über die möglichen Auswege zu naheliegenden Feldern im Labyrinth, beziehungsweise die ausgehenden Verbindungen zu anderen Knoten. 
+Hierzu wird für alle sechs möglichen Fälle zu den aktuellen Koordinaten der entsprechende Offset hinzugefügt, um die Koordinaten des benachbarten Punktes zu erhalten. Anschließend wird der benachbarte Punkt daraufhin überprüft, ob er sich innerhalb der Grenzen der Karte befindet und ob es sich nicht um eine Wand handelt.
+
+\begin{algorithm}
+    \caption{Finde alle Nachbarn von dem Punkt im Matrix}
+    \begin{algorithmic}
+        \State $offsetX \gets \{0, 0, -1, 1, 0 ,0\}$
+        \Comment{Sechs mögliche Fälle von Nachbarn}
+        \State $offsetY \gets \{-1, 1, 0, 0, 0, 0\}$
+        \State $offsetZ \gets \{0, 0, 0, 0, 1, -1\}$
+
+        \Function{IsValid}{x, y, z}
+        \State \Return $(y \geq 0)$ \AND $y < ROW$ \AND $(x \geq 0)$ \AND $x < COL$ \AND $(z \geq 0)$ \AND $(z < DEPTH)$
+        \EndFunction
+        
+        \Function{GetNeighbors}{$mat: \ \textbf{LabyrinthMatrix}$, $point: \ \textbf{Point}$}
+        \State $result \gets array(Point)$
+        \For{alle sechs mögliche Seiten}
+        \State $x \gets point.x + offsetX[i]$
+        \State $y \gets point.y + offsetY[i]$
+        \State $z \gets point.z + offsetZ[i]$
+        \If{$\textbf{IsValid}(x, y, z)$ \AND $mat[z][y][x] \neq \#$}
+        \Comment{Innerhalb Grenzen der Karte und nicht eine Wand}
+        \State $result.push(\{x, y, z\}$
+        \EndIf
+        \EndFor
+        \State \Return $result$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+\vspace{0.5cm}
+
+Die Funktion \textbf{$Heuristik$} gibt an, wie nahe der Punkt $A$ dem Punkt $B$ ist. Diese Information ist entscheidend für die gezielte Suche nach dem Zielpunkt (Finish-Knoten).
+
+\begin{algorithm}
+    \caption{Berechne die Heuristik für zwei Knoten}
+    \begin{algorithmic}
+        \Function{Heuristic}{$a: \ \textbf{Point}$, $b: \ \textbf{Point}$}
+        \State \Return $abs(a.x - b.x)$ + $abs(a.y - b.y)$ + $abs(a.z - b.z)$
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+\vspace{0.5cm}
+
+Die Funktion \textbf{$GetCost$} ermittelt das Gewicht der Kante zwischen Punkt $A$ und Punkt $B$. Wenn sich die Punkte auf derselben Ebene befinden, beträgt das Gewicht \textbf{eine Sekunde}, andernfalls \textbf{drei Sekunden}.
+
+\begin{algorithm}
+    \caption{Berechne die Kosten für den Übergang vom Punkt $A$ zum Punkt $B$}
+    \begin{algorithmic}
+        \Function{GetCost}{$a: \ \textbf{Point}$, $b: \ \textbf{Point}$}
+        \If{$a.z = b.z$}
+        \State \Return $1$
+        \Else
+        \State \Return $3$
+        \EndIf
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+Der Hauptalgorithmus zur Pfadsuche ist eine modifizierte Implementierung des A*-Algorithmus, der auf 3D erweitert wurde und für die vereinfachte Darstellung des Labyrinths in Form einer Matrix angepasst ist. Dabei werden die noch zu prüfenden Knoten in einer priorisierten Schlange gespeichert. Dies gewährleistet, dass zunächst die wahrscheinlichsten Knoten in Richtung des Ziel-Knotens überprüft werden, wodurch eine schnellere Lösung erreicht werden kann. Die bereits besuchten Knoten und die Kosten für jeden überprüften Knoten werden in einer Hashmap gespeichert.
+
+Der Algorithmus arbeitet, bis er vom Startpunkt $A$ zum Zielpunkt $B$ gelangt. Alle Nachbarn des ersten Elements in der Schlange werden überprüft. Falls sie noch nicht geprüft wurden, werden sie mit einer entsprechenden Priorität bezüglich der Distanz zum Zielpunkt in die Schlange eingefügt.
+
+Nachdem die Schleife den Zielpunkt erreicht hat, wird die beste Zeit aus der Hashmap \textbf{costSoFar} ausgelesen, und die Reihenfolge der Koordinaten für die Lösung wird in einem Array gespeichert. Dieses Array dient dann als Grundlage für die Erstellung der Ausgabe.
+
+\begin{algorithm}
+    \caption{Suche den Pfad}\label{alg:find_path}
+    \begin{algorithmic}[5]
+        \Require{mat: LabyrinthMatrix, start: Point, finish: Point}
+        \State $frontier \gets \textbf{PriorityQueue}(PriorityPoint)$
+        \Comment{Gebiet von Knoten, die überprüft werden müssen}
+        \State $cameFrom \gets \textbf{HashMap}(Point, Point)$
+        \Comment{Zurückgelegte Knoten}
+        \State $costSoFar \gets \textbf{HashMap}(Point, int)$
+        \Comment{Kosten für jeden Knoten}
+        
+        \State $frontier.\textbf{Enqueue}(new\ \textbf{PriorityPoint}(start, 0))$
+        \Comment{Festlegen von Standardwerten für den Start-Knoten}
+        \State $cameFrom[start] \gets \{\}$
+        \State $costSoFar[start] \gets 0$
+
+        \While{frontier nicht leer}
+        \Comment{Im schlimmsten Falle alle Knoten durchgehen}
+        \State $currentPoint \gets frontier.\textbf{Dequeue()}.point$
+        \Comment{Der wahrscheinlichste nächste Knoten}
+        \If{$current = finish$}
+        \Comment{Frühzeitiger Stopp, wenn Finish gefunden wurde}
+        \State $break$
+        \EndIf
+        \For{next of \textbf{GetNeighbors}(mat, current)}
+        \Comment{Überprüfe alle Nachbarn}
+        \State $newCost \gets costSoFar[current] + \textbf{GetCost}(current, next)$
+        \If{next nicht besucht \OR newCost < costSoFar[next]}
+        \State $costSoFar[next] \gets newCost$
+        \State $frontier.Enqueue(new\ \textbf{PriorityPoint}(next, (newCost + \textbf{Heuristic}(finish, next))))$
+        \State $cameFrom[next] \gets current$ 
+        \EndIf
+        \EndFor
+        \EndWhile
+
+        \State $bestCost \gets costSoFar[finish]$
+        \State $solution \gets \textbf{GetSolutionPath}(cameFrom, start, finish)$
+        \Comment{Liste von Punkten, die vom Start zum Finish führen}
+    \end{algorithmic}
+\end{algorithm}
+
+\newpage
+\section{Beispiele}
+Für die Art und Weise der Ausgabe des gefundenen Pfades wurde das Beispiel von der BwInf-Webseite übernommen.
+Die Pfade für die Beispiele 4 und 5 wurden im Ordner "results" gespeichert.
+
+
+\subsection*{Zauberschule 0}
+\begin{lstlisting}[language=C++]
+cat examples/zauberschule0.txt | ./a.out
+Beste Zeit: 8
+#############
+#.....#.....#
+#.###.#.###.#
+#...#.#...#.#
+###.#.###.#.#
+#...#.....#.#
+#.#########.#
+#.....#.....#
+#####.#.###.#
+#....!#B..#.#
+#.#########.#
+#...........#
+#############
+#############
+#.......#...#
+#...#.#.#...#
+#...#.#.....#
+#.###.#.#.###
+#.....#.#...#
+#####.###...#
+#.....#.....#
+#.#########.#
+#...#>>!....#
+#.#.#.#.###.#
+#.#...#...#.#
+#############
+\end{lstlisting}
+
+\subsection*{Zauberschule 1}
+\begin{lstlisting}[language=C++]
+cat examples/zauberschule1.txt | ./a.out
+Beste Zeit: 4
+#####################
+#...#.....#...#.....#
+#.#.#.###.#.#.#.###.#
+#.#.#...#.#.#...#...#
+###.###.#.#.#####.###
+#.#.#...#.#B....#...#
+#.#.#.###.#^###.#####
+#.#...#.#.#^<<#.....#
+#.#####.#.#########.#
+#...................#
+#####################
+#####################
+#.......#.....#.....#
+#.###.#.#.###.#.###.#
+#.....#.#.#.....#.#.#
+#######.#.#######.#.#
+#.....#.#.....#...#.#
+#.###.#.#.###.###.#.#
+#.#.#...#.#...#...#.#
+#.#.#######.###.###.#
+#...........#.......#
+#####################
+\end{lstlisting}
+\pagebreak
+
+\subsection*{Zauberschule 2}
+\begin{lstlisting}[language=C++]
+cat examples/zauberschule2.txt | ./a.out
+Beste Zeit: 14
+#############################################
+#...#.....#...........#.#...........#.......#
+#.#.#.###.#########.#.#.#.#######.#.#.#####.#
+#.#.#...#.#.........#>>!#v#.....#.#.#...#...#
+###.###.#.#.#############v#.#.###.#.###.#.###
+#.#.#...#.#..............>>B#.#...#.#...#.#.#
+#.#.#.###.###########.#########.###.#.###.#.#
+#.#...#.#.#.........#.#.#.....#.#.....#.#.#.#
+#.#####.#.#.#######.#.#.#.###.#.#######.#.#.#
+#.....#...#...#.#...#...#.#.#.#.......#.#.#.#
+#.#####.#####.#.#.#######.#.#.#######.#.#.#.#
+#.....#.......#.#.#.....#.#.#.#...#...#...#.#
+#.###.#########.#.###.#.#.#.#.#.#.#.###.###.#
+#...#.................#...#.....#...#.......#
+#############################################
+#############################################
+#...#.......#.....#.....#...#...#.....#.....#
+#.#.#.#####.###.#.###.#.#.#.#.#.#.###.###.###
+#.#.#.....#.#...#.....#>>!#.#.#...#.#...#...#
+###.#.###.#.#.#############.#.#####.###.###.#
+#.#.#...#.#.#.#.....#...#.#.#...#.#...#.#...#
+#.#.#####.#.#.#.###.#.#.#.#.#.#.#.#.#.#.#.###
+#.#...#...#.#.....#.#.#...#.#.#.#...#.#.#...#
+#.###.#.###.#.#####.#.###.#.###.#####.#.###.#
+#...#.#.#...#...#...#...#.#...#.#.....#.....#
+#.###.#.#.#######.#####.#####.#.#.#.#######.#
+#...#...#...#...#.....#.......#.#.#.#.....#.#
+#.#.#######.#.#.#####.#.#######.#.###.###.#.#
+#.#...........#.......#.........#.......#...#
+#############################################
+\end{lstlisting}
+\pagebreak
+
+\subsection*{Zauberschule 3}
+\begin{lstlisting}[language=C++]
+cat examples/zauberschule3.txt | ./a.out
+Beste Zeit: 28
+###############################
+#...#.....#...........#.......#
+#.#.#.###.#.###.#######.###.#.#
+#.#.#...#.#.#.#.#.......#...#.#
+###.###.#.#.#.#.#.#######.###.#
+#.#.#...#.#...#.....#.....#.#.#
+#.#.#.###.###########.#####.#.#
+#.#...#.#.#.........#...#.....#
+#.#####.#.#.#######.###.#.#####
+#...#.#...#...#.#...#...#.#...#
+#.#.#.#.#####.#.#.###.###.#.#.#
+#.#.#.#.......#.#.#...#.#...#.#
+#.#.#.#########.#.#.###.#####.#
+#.#.......#.#.....#.#.#.....#.#
+#.#######.#.#.#####.#.#.###.#.#
+#.#.....#...#.#.#...#.#.#.#...#
+#.#.###.#####.#.#.#.#.#.#.#####
+#.#...#.....#.#.#.#.#...#.....#
+#.###.#####.#.#.#.#.###.#####.#
+#...#.#...#...#...#...#.......#
+#.#.#.#.#############.#.#######
+#.#.#.#...............#.#.....#
+#.###.#.#######.#########.###.#
+#...#.#.#...#...#.........#...#
+###.#.###.#.#.###.#####.###.#.#
+#...#.....#.#.....#>>B#.#...#.#
+#.#########.#######^#.###.###.#
+#..v#>>>>v#.#>>>>>>^#...#.#.#.#
+#.#v#^###v#.#^#########.#.#.#.#
+#.#>>^..#>>>>^#...........#...#
+###############################
+###############################
+#.......#.....#...#...#.......#
+#.###.#.#.#.#.#.###.#.#.#.#####
+#.....#.#.#.#.#.....#.#.#.....#
+#######.#.#.#.#.#####.#.#####.#
+#.....#.#.#.#.#.#...#...#.....#
+#.###.#.###.#.###.#.#.###.#####
+#...#.#.#...#.....#.#.#.#.....#
+#.#.###.#.#########.#.#.#####.#
+#.#.....#.#.......#.#.....#...#
+#.#######.#######.#.#.#####.#.#
+#...#...#.....#...#.#.#...#.#.#
+###.#.#.#.###.#.###.#.#.#.#.#.#
+#.#.#.#...#...#.....#.#.#.#.#.#
+#.#.#.#####.###.#######.#.#.#.#
+#.#.#.....#.#.....#.....#.#.#.#
+#.#.#######.#####.###.###.#.#.#
+#.#.....#...#...#.....#.#...#.#
+#.#####.#.###.#.#######.#####.#
+#.#...#.#.#...#.......#.#.....#
+#.#.#.#.#.#.#########.#.#.#####
+#...#.#.#.#...#...#.#.#.#.....#
+#####.#.#.###.#.#.#.#.#.#####.#
+#.....#.#.......#.#.#.#...#...#
+#.###.#.#########.#.#.#.#.#.###
+#...#.#.....#.#.....#.#.#.#.#.#
+#.#.#######.#.#.#####.#.#.#.#.#
+#.#.......#.#...#.....#.#...#.#
+#.###.#####.#####.#####.#####.#
+#...#.............#...........#
+###############################
+\end{lstlisting}
+\pagebreak
+
+\subsection*{Zauberschule 4}
+\begin{lstlisting}[language=C++]
+cat examples/zauberschule4.txt | ./a.out
+Beste Zeit: 84
+...
+\end{lstlisting}
+
+\subsection*{Zauberschule 5}
+\begin{lstlisting}[language=C++]
+cat examples/zauberschule5.txt | ./a.out
+Beste Zeit: 124
+...
+\end{lstlisting}
+
+\section{Quellcode}
+
+In diesem Kontext wird die C++20-Version verwendet, um das Verhalten von Vergleichsoperatoren für eigene Strukturen zu definieren.
+
+\begin{lstlisting}[language=C++]
+int ROW, COL, DEPTH = 2;
+const int yNum[] = {-1, 1, 0, 0, 0, 0};
+const int xNum[] = {0, 0, -1, 1, 0, 0};
+const int zNum[] = {0, 0, 0, 0, 1, -1};
+
+struct Point {
+  int x;
+  int y;
+  int z;
+
+  bool operator==(const Point& other) const {
+    return x == other.x && y == other.y && z == other.z;
+  }
+};
+
+struct PriorityPoint {
+  Point point;
+  int priority;
+
+  bool operator<(const PriorityPoint& other) const {
+    return priority > other.priority;
+  }
+};
+
+bool is_valid(int x, int y, int z) {
+  return (y >= 0) && (y < ROW) && (x >= 0) && (x < COL) && (z >= 0) &&
+         (z < DEPTH);
+}
+
+vector<Point> get_neighbors(vector<vector<vector<char>>> mat, Point pt) {
+  vector<Point> result;
+  for (int i = 0; i < 6; i++) {
+    int y = pt.y + yNum[i];
+    int x = pt.x + xNum[i];
+    int z = pt.z + zNum[i];
+    if (!is_valid(x, y, z) || mat[z][y][x] == '#') continue;
+    result.push_back({x, y, z});
+  }
+  return result;
+}
+
+void print_maze(vector<vector<vector<char>>> mat) {
+  for (int z = 0; z < DEPTH; z++) {
+    for (int y = 0; y < mat[z].size(); y++) {
+      for (int x = 0; x < mat[z][y].size(); x++) {
+        cout << mat[z][y][x];
+      }
+      cout << "\n";
+    }
+  }
+}
+
+int get_cost(Point a, Point b) { return a.z == b.z ? 1 : 3; }
+
+int heuristic(Point a, Point b) {
+  return abs(a.x - b.x) + abs(a.y - b.y) + abs(a.z - b.z);
+}
+
+vector<Point> get_solution_path(unordered_map<Point, Point> came_from,
+                                Point start, Point finish) {
+  vector<Point> path;
+  Point current = finish;
+  while (current != start) {
+    path.push_back(current);
+    current = came_from[current];
+  }
+  path.push_back(start);
+  return path;
+}
+
+pair<int, vector<Point>> find_path(vector<vector<vector<char>>> mat,
+                                   Point start, Point finish) {
+  priority_queue<PriorityPoint> frontier;
+  frontier.push({start, 0});
+
+  unordered_map<Point, Point> came_from;
+  came_from[start] = {};
+
+  unordered_map<Point, int> cost_so_far;
+  cost_so_far[start] = 0;
+
+  while (!frontier.empty()) {
+    Point current = frontier.top().point;
+    frontier.pop();
+    if (current == finish) break;
+    for (Point next : get_neighbors(mat, current)) {
+      int new_cost = cost_so_far[current] + get_cost(current, next);
+      if (came_from.count(next) == 0 || new_cost < cost_so_far[next]) {
+        cost_so_far[next] = new_cost;
+        frontier.push({next, new_cost + heuristic(finish, next)});
+        came_from[next] = current;
+      }
+    }
+  }
+
+  int best_cost = cost_so_far[finish];
+  vector<Point> solution_path = get_solution_path(came_from, start, finish);
+
+  return {best_cost, solution_path};
+}
+\end{lstlisting}
+
+
+
+\end{document}
